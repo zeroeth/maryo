@@ -1,0 +1,92 @@
+<html>
+  <head>
+    <script src='http://cdn.html5quintus.com/v0.2.0/quintus-all.js'></script>
+	<style>
+		canvas { background-color: #5e81a2; }
+	</style>
+  </head>
+   <body>
+     <script>
+		// This game uses spritesheet.png from:
+	 	// http://opengameart.org/content/platformer-art-pixel-redux
+		var Q = Quintus()
+			.include("Sprites, Scenes, Input, 2D, Touch, UI")
+			.setup({maximize: true})
+			.controls()
+			.touch();
+
+
+		// Player
+		//
+		Q.Sprite.extend("Player",
+		{
+			init: function(p)
+			{
+				p.sheet = "game_tiles";
+				p.frame = 50;
+				this._super(p);
+				this.add("2d");
+				this.add("platformerControls");
+			}
+		});
+
+
+		// The level with game objects in it
+		//
+		Q.scene("level1",function(stage)
+		{
+			var map = new Q.TileLayer({
+				dataAsset: 'level_data.json',
+				sheet:     'game_tiles',
+				tileW: 21,
+				tileH: 21
+			});
+
+			stage.collisionLayer(map);
+			stage.insert(new Q.Player({x:  50, y:  50}));
+		});
+
+
+		// Game assets, level data, images, music, sounds
+		//
+		var assets = ["spritesheet.png"];
+
+
+		// Our level, each number represents a sprite in the image
+		//
+		Q.assets["level_data.json"] = [
+			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,18, 0, 0, 0, 0, 0],
+			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,62,63,63,64, 0, 0, 0],
+			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[ 0, 0, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0],
+			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[ 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,35],
+			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11],
+			[40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40],
+			[40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40,40]
+		];
+
+
+		// Load assets and launch the first scene to start the game
+		//
+		Q.load(assets , function()
+		{
+			Q.sheet("game_tiles","spritesheet.png", {
+				tileW: 21,
+				tileH: 21,
+				sx: 2,
+				sy: 2,
+				spacingX: 2,
+				spacingY: 2,
+			});
+
+			Q.stageScene("level1");
+		});
+   </script>
+   </body>
+</html>
