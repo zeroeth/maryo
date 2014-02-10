@@ -9,12 +9,13 @@
      <script>
 		// This game uses spritesheet.png from:
 	 	// http://opengameart.org/content/platformer-art-pixel-redux
-		var Q = Quintus()
-			.include("Sprites, Anim, Scenes, Input, 2D, Touch, UI")
+		var Q = Quintus({audioSupported: ['wav']})
+			.include("Sprites, Anim, Audio, Scenes, Input, 2D, Touch, UI")
 			.setup({maximize: true})
 			.controls()
 			.touch();
 
+		Q.enableSound();
 		Q.setImageSmoothing(false);
 
 		// Player
@@ -29,6 +30,8 @@
 				this._super(p);
 				this.add("2d, animation");
 				this.add("platformerControls");
+
+				Q.input.on("fire", this, "flip_gravity");
 			},
 
 			// Movement animations
@@ -37,19 +40,34 @@
 				if(this.p.vx > 0)
 				{
 					if(this.p.landed > 0) { this.play("walk_right"); }
-					                 else { this.play("jump_right"); }
+					else                  { this.play("jump_right"); }
 				}
 				else if(this.p.vx < 0)
 				{
 					if(this.p.landed > 0) { this.play("walk_left"); }
-					                 else { this.play("jump_left"); }
+					else                  { this.play("jump_left"); }
 				}
 				else
 				{
 					this.play("stand_front");
 				}
+			},
+
+			// This could be on a switch too
+			flip_gravity: function()
+			{
+				Q.gravityY *= -1.0;
+
+				if(Q.gravityY < 0) { this.p.sprite = "game_tiles_upsidedown"; }
+				else               { this.p.sprite = "game_tiles";            }
 			}
 		});
+
+
+		// Coin to pickup
+
+
+
 
 
 		// The level with game objects in it
@@ -64,23 +82,20 @@
 			});
 
 			stage.collisionLayer(map);
-			stage.insert(new Q.Player({x:  50, y:  50}));
+			var player = stage.insert(new Q.Player({x:  50, y:  50}));
 
 			stage.add('viewport');
 			stage.viewport.scale = 2.0;
 		});
 
 
-		// Game assets, level data, images, music, sounds
-		//
-		var assets = ["spritesheet.png"];
-
-
 		// Our level, each number represents a sprite in the image
 		//
 		Q.assets["level_data.json"] = [
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[ 0, 0, 0, 0, 0, 0, 0,0,765,765,0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+			[ 0, 0, 0, 0, 0,765,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,18, 0, 0, 0, 0, 0],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,62,63,63,64, 0, 0, 0],
@@ -98,7 +113,7 @@
 
 		// Load assets and launch the first scene to start the game
 		//
-		Q.load(assets , function()
+		Q.load("spritesheet.png, jump.wav, coin.wav" , function()
 		{
 			Q.sheet("game_tiles","spritesheet.png", {
 				tileW: 21,
@@ -111,10 +126,18 @@
 
 			Q.animations("game_tiles", {
 			  walk_right:  { frames: [58,59], rate: 1/10, flip: false, loop: true },
-			  walk_left:   { frames: [58,59], rate: 1/10, flip:"x",    loop: true },
+			  walk_left:   { frames: [58,59], rate: 1/10, flip: "x",   loop: true },
 			  jump_right:  { frames: [56], flip: false },
-			  jump_left:   { frames: [56], flip: "x" },
-			  stand_front: { frames: [49] }
+			  jump_left:   { frames: [56], flip: "x"   },
+			  stand_front: { frames: [49], flip: false }
+			});
+
+			Q.animations("game_tiles_upsidedown", {
+			  walk_right:  { frames: [58,59], rate: 1/10, flip:  "y", loop: true },
+			  walk_left:   { frames: [58,59], rate: 1/10, flip: "xy", loop: true },
+			  jump_right:  { frames: [56], flip:  "y" },
+			  jump_left:   { frames: [56], flip: "xy" },
+			  stand_front: { frames: [49], flip:  "y" }
 			});
 			
 			Q.stageScene("level1");
