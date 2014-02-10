@@ -31,7 +31,10 @@
 				this.add("2d, animation");
 				this.add("platformerControls");
 
+
+				// Trigger input once (vs held down)
 				Q.input.on("fire", this, "flip_gravity");
+				Q.input.on("up",   this, "jump");
 			},
 
 			// Movement animations
@@ -60,6 +63,11 @@
 
 				if(Q.gravityY < 0) { this.p.sprite = "game_tiles_upsidedown"; }
 				else               { this.p.sprite = "game_tiles";            }
+			},
+
+			jump: function()
+			{
+				Q.audio.play('jump.wav');
 			}
 		});
 
