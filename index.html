@@ -10,11 +10,12 @@
 		// This game uses spritesheet.png from:
 	 	// http://opengameart.org/content/platformer-art-pixel-redux
 		var Q = Quintus()
-			.include("Sprites, Scenes, Input, 2D, Touch, UI")
+			.include("Sprites, Anim, Scenes, Input, 2D, Touch, UI")
 			.setup({maximize: true})
 			.controls()
 			.touch();
 
+		Q.setImageSmoothing(false);
 
 		// Player
 		//
@@ -22,11 +23,31 @@
 		{
 			init: function(p)
 			{
-				p.sheet = "game_tiles";
-				p.frame = 50;
+				p.sheet  = "game_tiles";
+				p.sprite = "game_tiles";
+
 				this._super(p);
-				this.add("2d");
+				this.add("2d, animation");
 				this.add("platformerControls");
+			},
+
+			// Movement animations
+			step: function(delta)
+			{
+				if(this.p.vx > 0)
+				{
+					if(this.p.landed > 0) { this.play("walk_right"); }
+					                 else { this.play("jump_right"); }
+				}
+				else if(this.p.vx < 0)
+				{
+					if(this.p.landed > 0) { this.play("walk_left"); }
+					                 else { this.play("jump_left"); }
+				}
+				else
+				{
+					this.play("stand_front");
+				}
 			}
 		});
 
@@ -44,6 +65,9 @@
 
 			stage.collisionLayer(map);
 			stage.insert(new Q.Player({x:  50, y:  50}));
+
+			stage.add('viewport');
+			stage.viewport.scale = 2.0;
 		});
 
 
@@ -85,6 +109,14 @@
 				spacingY: 2,
 			});
 
+			Q.animations("game_tiles", {
+			  walk_right:  { frames: [58,59], rate: 1/10, flip: false, loop: true },
+			  walk_left:   { frames: [58,59], rate: 1/10, flip:"x",    loop: true },
+			  jump_right:  { frames: [56], flip: false },
+			  jump_left:   { frames: [56], flip: "x" },
+			  stand_front: { frames: [49] }
+			});
+			
 			Q.stageScene("level1");
 		});
    </script>
